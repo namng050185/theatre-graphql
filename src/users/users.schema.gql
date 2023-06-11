@@ -10,13 +10,13 @@ input UserInput {
 }
 
 type Query {
-  userById(id: ID!): User!
-  userByEmail(email: String!): User!
-  users(page: Int! = 1, take: Int! = 25): [User!]!
+  userById(id: ID!): User
+  userByEmail(email: String!): User
+  users(page: Int! = 1, take: Int! = 25): [User]
 }
 
 type Mutation {
-  createUser(data: UserInput!): User!
-  updateUser(id: ID!, data: UserInput!): User!
-  deleteUser(id: ID!): User!
+  createUser(data: UserInput!): User
+  updateUser(id: ID!, data: UserInput!): User
+  deleteUser(id: ID!): User
 }

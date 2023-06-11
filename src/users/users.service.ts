@@ -1,16 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { User, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ErrException } from 'src/shared/error.exception';
+import { ErrException, NotFoundException } from 'src/shared/error.exception';
 
 @Injectable()
-export class UserService {
+export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async user(
-    userWhereUniqueInput: Prisma.UserWhereUniqueInput,
-  ): Promise<User | null> {
-    return this.prisma.user
+  async user(userWhereUniqueInput: Prisma.UserWhereUniqueInput): Promise<User> {
+    const user = this.prisma.user
       .findUnique({
         where: userWhereUniqueInput,
       })
@@ -18,6 +16,9 @@ export class UserService {
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
+    const idcheck = (await user)?.id;
+    if (idcheck) return user;
+    else throw new NotFoundException();
   }
 
   async users(params: {

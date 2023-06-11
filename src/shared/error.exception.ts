@@ -8,3 +8,12 @@ export class ErrException extends HttpException {
     });
   }
 }
+
+export class NotFoundException extends ErrException {
+  constructor() {
+    super({
+      code: 'DATA_NOT_FOUND',
+      message: 'Data not found',
+    });
+  }
+}
