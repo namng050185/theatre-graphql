@@ -29,6 +29,9 @@ export class UsersService {
     orderBy?: Prisma.UserOrderByWithRelationInput;
   }): Promise<User[]> {
     const { skip, take, cursor, where, orderBy } = params;
+    // if (where.id) {
+    //   where.id = Number(where.id);
+    // }
     return this.prisma.user
       .findMany({
         skip,
@@ -38,6 +41,7 @@ export class UsersService {
         orderBy,
       })
       .catch(async (e) => {
+        console.log(e);
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });

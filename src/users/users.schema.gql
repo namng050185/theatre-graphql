@@ -9,10 +9,25 @@ input UserInput {
   name: String
 }
 
+input UserSortInput {
+  id: SortType
+  email: SortType
+  name: SortType
+}
+
+input UserWhereInput{
+  AND: JSON
+  OR: JSON
+  NOT: JSON
+  id: JSON 
+  email: JSON
+  name: JSON
+}
+
 type Query {
   userById(id: ID!): User
   userByEmail(email: String!): User
-  users(page: Int! = 1, take: Int! = 25): [User]
+  users(page: Int! = 1, take: Int! = 25, where:UserWhereInput,  orderBy: [UserSortInput] ): [User]
 }
 
 type Mutation {
