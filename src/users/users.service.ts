@@ -5,7 +5,7 @@ import { ErrException, NotFoundException } from 'src/shared/error.exception';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async user(userWhereUniqueInput: Prisma.UserWhereUniqueInput): Promise<User> {
     const user = this.prisma.user
@@ -23,28 +23,31 @@ export class UsersService {
 
   async users(params: {
     skip?: number;
-    take?: number;
+    limit?: number;
     cursor?: Prisma.UserWhereUniqueInput;
     where?: Prisma.UserWhereInput;
     orderBy?: Prisma.UserOrderByWithRelationInput;
-  }): Promise<User[]> {
-    const { skip, take, cursor, where, orderBy } = params;
-    // if (where.id) {
-    //   where.id = Number(where.id);
-    // }
-    return this.prisma.user
+  }): Promise<any> {
+    const { skip, limit, cursor, where, orderBy } = params;
+    const total = await this.prisma.user
+      .count({ cursor, where })
+      .catch(async (e) => {
+        await this.prisma.$disconnect();
+        throw new ErrException(e);
+      });
+    const users = this.prisma.user
       .findMany({
         skip,
-        take,
+        take: limit,
         cursor,
         where,
         orderBy,
       })
       .catch(async (e) => {
-        console.log(e);
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
+    return { entities: users, total };
   }
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {

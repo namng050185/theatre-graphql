@@ -10,19 +10,25 @@ export class UsersResolvers {
   constructor(
     private prisma: PrismaService,
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
   @UseGuards(AuthGuard)
   @Query('users')
   async users(
     @Args('page') page?: number,
-    @Args('take') take?: number,
+    @Args('limit') limit?: number,
     @Args('cursor') cursor?: Prisma.UserWhereUniqueInput,
     @Args('where') where?: Prisma.UserWhereInput,
     @Args('orderBy') orderBy?: Prisma.UserOrderByWithRelationInput,
-  ): Promise<User[]> {
-    const skip = (page - 1) * take;
-    return this.usersService.users({ skip, take, cursor, where, orderBy });
+  ): Promise<any> {
+    const skip = (page - 1) * limit;
+    return this.usersService.users({
+      skip,
+      limit,
+      cursor,
+      where,
+      orderBy,
+    });
   }
 
   @UseGuards(AuthGuard)

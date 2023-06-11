@@ -42,10 +42,13 @@ $ npm run test:cov
 
 ## QUERY Example
 
+[Prisma](https://www.prisma.io/docs/reference/api-reference/prisma-client-reference) : Guide Query where for get multiple data
+
+
 ```bash
 {
   "page": 1,
-  "take": 25,
+  "limit": 25,
   "orderBy": [
     {
       "name": "asc",

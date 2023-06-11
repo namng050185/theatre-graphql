@@ -24,10 +24,16 @@ input UserWhereInput{
   name: JSON
 }
 
+type UserList {
+  entities: [User!]
+  total: Int
+}
+
+
 type Query {
   userById(id: ID!): User
   userByEmail(email: String!): User
-  users(page: Int! = 1, take: Int! = 25, where:UserWhereInput,  orderBy: [UserSortInput] ): [User]
+  users(page: Int! = 1, limit: Int! = 25, where:UserWhereInput,  orderBy: [UserSortInput] ): UserList
 }
 
 type Mutation {
