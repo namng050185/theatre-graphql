@@ -10,8 +10,11 @@ datasource db {
 model User {
   id    Int     @default(autoincrement()) @id
   email String  @unique
-  name  String?
+  password  String?
+  fullname  String?
+  meta Json?
   posts Post[]
+  portfolios Portfolio[]
 }
 
 model Post {
@@ -19,6 +22,15 @@ model Post {
   title     String
   content   String?
   published Boolean? @default(false)
-  author    User?    @relation(fields: [authorId], references: [id])
   authorId  Int?
+  author    User?    @relation(fields: [authorId], references: [id])
+}
+
+model Portfolio {
+  id        Int      @default(autoincrement()) @id
+  title     String
+  content   String?
+  published Boolean? @default(false)
+  authorId  Int?
+  author    User?    @relation(fields: [authorId], references: [id])
 }

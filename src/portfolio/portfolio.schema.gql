@@ -1,0 +1,55 @@
+
+type Portfolio {
+ id: ID!
+ title: String!
+ content: String
+ published: Boolean
+ authorId: Int
+ author: User
+
+}
+
+input PortfolioInput {
+ title: String!
+ content: String
+ published: Boolean
+ authorId: Int
+
+}
+
+input PortfolioSortInput {
+ id: SortType
+ title: SortType
+ content: SortType
+ published: SortType
+ authorId: SortType
+
+}
+
+input PortfolioWhereInput{
+ AND: JSON
+ OR: JSON
+ NOT: JSON
+ id: JSON
+ title: JSON
+ content: JSON
+ published: JSON
+ authorId: JSON
+
+}
+
+type PortfolioList {
+  entities: [Portfolio!]
+  total: Int
+}
+
+type Query {
+  portfolioById(id: ID!): Portfolio
+  portfolios(page: Int! = 1, limit: Int! = 25, where:PortfolioWhereInput,  orderBy: [PortfolioSortInput] ): PortfolioList
+}
+
+type Mutation {
+  createPortfolio(data: PortfolioInput!): Portfolio
+  updatePortfolio(id: ID!, data: PortfolioInput!): Portfolio
+  deletePortfolio(id: ID!): Portfolio
+}

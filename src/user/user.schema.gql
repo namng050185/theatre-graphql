@@ -1,27 +1,40 @@
+
 type User {
-  id: ID!
-  email: String
-  name: String
+ id: ID!
+ email: String!
+ password: String
+ fullname: String
+ meta: JSON
+ posts: [Post]
+ portfolios: [Portfolio]
+
 }
 
 input UserInput {
-  email: String
-  name: String
+ email: String!
+ password: String
+ fullname: String
+ meta: JSON
+
 }
 
 input UserSortInput {
-  id: SortType
-  email: SortType
-  name: SortType
+ id: SortType
+ email: SortType
+ password: SortType
+ fullname: SortType
+
 }
 
 input UserWhereInput{
-  AND: JSON
-  OR: JSON
-  NOT: JSON
-  id: JSON 
-  email: JSON
-  name: JSON
+ AND: JSON
+ OR: JSON
+ NOT: JSON
+ id: JSON
+ email: JSON
+ password: JSON
+ fullname: JSON
+
 }
 
 type UserList {
@@ -29,10 +42,8 @@ type UserList {
   total: Int
 }
 
-
 type Query {
   userById(id: ID!): User
-  userByEmail(email: String!): User
   users(page: Int! = 1, limit: Int! = 25, where:UserWhereInput,  orderBy: [UserSortInput] ): UserList
 }
 

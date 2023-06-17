@@ -1,59 +1,63 @@
+/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
-import { User, Prisma } from '@prisma/client';
+import { Post, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ErrException, NotFoundException } from 'src/shared/error.exception';
 
 @Injectable()
-export class UsersService {
+export class PostService {
   constructor(private prisma: PrismaService) { }
 
-  async user(userWhereUniqueInput: Prisma.UserWhereUniqueInput): Promise<User> {
-    const user = this.prisma.user
+  async post(postWhereUniqueInput: Prisma.PostWhereUniqueInput): Promise<Post> {
+    const post = this.prisma.post
       .findUnique({
-        where: userWhereUniqueInput,
+        where: postWhereUniqueInput,
+        include: { author: true,}
       })
       .catch(async (e) => {
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
-    const idcheck = (await user)?.id;
-    if (idcheck) return user;
+    const idcheck = (await post)?.id;
+    if (idcheck) return post;
     else throw new NotFoundException();
   }
 
-  async users(params: {
+  async posts(params: {
     skip?: number;
     limit?: number;
-    cursor?: Prisma.UserWhereUniqueInput;
-    where?: Prisma.UserWhereInput;
-    orderBy?: Prisma.UserOrderByWithRelationInput;
+    cursor?: Prisma.PostWhereUniqueInput;
+    where?: Prisma.PostWhereInput;
+    orderBy?: Prisma.PostOrderByWithRelationInput;
   }): Promise<any> {
     const { skip, limit, cursor, where, orderBy } = params;
-    const total = await this.prisma.user
+    const total = await this.prisma.post
       .count({ cursor, where })
       .catch(async (e) => {
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
-    const users = this.prisma.user
+    const posts = this.prisma.post
       .findMany({
         skip,
         take: limit,
         cursor,
         where,
         orderBy,
+         include: { author: true,}
       })
       .catch(async (e) => {
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
-    return { entities: users, total };
+    return { entities: posts, total };
   }
 
-  async createUser(data: Prisma.UserCreateInput): Promise<User> {
-    return this.prisma.user
+  async createPost(data: Prisma.PostCreateInput): Promise<Post> {
+    return this.prisma.post
       .create({
         data,
+        include: { author: true,}
       })
       .catch(async (e) => {
         await this.prisma.$disconnect();
@@ -61,15 +65,16 @@ export class UsersService {
       });
   }
 
-  async updateUser(params: {
-    where: Prisma.UserWhereUniqueInput;
-    data: Prisma.UserUpdateInput;
-  }): Promise<User> {
+  async updatePost(params: {
+    where: Prisma.PostWhereUniqueInput;
+    data: Prisma.PostUpdateInput;
+  }): Promise<Post> {
     const { where, data } = params;
-    return this.prisma.user
+    return this.prisma.post
       .update({
         data,
         where,
+        include: { author: true,}
       })
       .catch(async (e) => {
         await this.prisma.$disconnect();
@@ -77,10 +82,11 @@ export class UsersService {
       });
   }
 
-  async deleteUser(where: Prisma.UserWhereUniqueInput): Promise<User> {
-    return this.prisma.user
+  async deletePost(where: Prisma.PostWhereUniqueInput): Promise<Post> {
+    return this.prisma.post
       .delete({
         where,
+        include: { author: true,}
       })
       .catch(async (e) => {
         await this.prisma.$disconnect();

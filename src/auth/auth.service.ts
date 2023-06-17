@@ -1,20 +1,28 @@
+/* eslint-disable prettier/prettier */
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { ErrException } from 'src/shared/error.exception';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private usersService: UsersService,
-    private jwtService: JwtService,
-  ) {}
+  constructor(public jwtService: JwtService, private prisma: PrismaService) { }
 
   async signIn(username: string, password: string): Promise<any> {
-    const user = await this.usersService.user({ email: username });
+    const user = await this.prisma.user
+      .findUnique({
+        where: { email: username },
+      })
+      .catch(async (e) => {
+        await this.prisma.$disconnect();
+        throw new ErrException(e);
+      });
+    console.log(user);
+    //const user = null; //await this.usersService.user({ email: username });
     if (!user) {
       throw new UnauthorizedException('UNAUTHORIZED');
     }
-    const { id, email, name } = user;
+    const { id, email, fullname } = user;
     // if (user?.password !== pass) {
     //     throw new UnauthorizedException();
     // }
@@ -28,7 +36,7 @@ export class AuthService {
       info: {
         id,
         email,
-        name,
+        fullname,
       },
     };
   }
