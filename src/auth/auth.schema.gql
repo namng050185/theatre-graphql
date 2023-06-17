@@ -1,8 +1,10 @@
 type Login {
   access_token: String
+  refresh_token: String
   info: User
 }
 
 type Mutation {
   signIn(email: String!, password: String): Login!
+  refresh: Login!
 }

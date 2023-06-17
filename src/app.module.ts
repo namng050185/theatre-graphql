@@ -28,7 +28,6 @@ import { PortfolioModule } from './portfolio/portfolio.module';
     }),
     JwtModule.register({
       global: true,
-      secret: JWT_CONSTANTS.secret,
       signOptions: { expiresIn: '1800s' },
     }),
   ],
