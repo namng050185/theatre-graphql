@@ -3,7 +3,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ErrException } from 'src/shared/error.exception';
-
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class AuthService {
   constructor(public jwtService: JwtService, private prisma: PrismaService) { }
@@ -17,7 +17,9 @@ export class AuthService {
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
-    console.log(user);
+    const checkPassword = bcrypt.compareSync(password, user.password)
+    if (!checkPassword) throw new UnauthorizedException('PASSWORD_IS_INCORRECT');
+    delete user.password
     //const user = null; //await this.usersService.user({ email: username });
     if (!user) {
       throw new UnauthorizedException('UNAUTHORIZED');
