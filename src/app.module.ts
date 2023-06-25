@@ -11,6 +11,7 @@ import { JWT_CONSTANTS } from './shared/constant';
 import { UserModule } from './user/user.module';
 import { PostModule } from './post/post.module';
 import { PortfolioModule } from './portfolio/portfolio.module';
+import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
 @Module({
   imports: [
@@ -25,6 +26,12 @@ import { PortfolioModule } from './portfolio/portfolio.module';
       installSubscriptionHandlers: true,
       playground: false,
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
+      formatError: (error: GraphQLError) => {
+        const graphQLFormattedError: GraphQLFormattedError = {
+          message: error?.message || error?.extensions?.code + '',
+        };
+        return graphQLFormattedError;
+      },
     }),
     JwtModule.register({
       global: true,
