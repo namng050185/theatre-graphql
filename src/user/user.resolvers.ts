@@ -4,10 +4,12 @@ import { User, Prisma } from '@prisma/client';
 import { UserService } from './user.service';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guards';
+import { UserCreateInput } from './input.type';
+import { ValidationPipe } from 'src/shared/validation.pipe';
 
 @Resolver('User')
 export class UserResolvers {
-  constructor(private userService: UserService ) { }
+  constructor(private userService: UserService) { }
 
   @UseGuards(AuthGuard)
   @Query('users')
@@ -36,7 +38,7 @@ export class UserResolvers {
 
   @UseGuards(AuthGuard)
   @Mutation('createUser')
-  async create(@Args('data') data: Prisma.UserCreateInput): Promise<User> {
+  async create(@Args('data', new ValidationPipe()) data: UserCreateInput): Promise<User> {
     return this.userService.createUser(data);
   }
 

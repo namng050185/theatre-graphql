@@ -5,19 +5,24 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { ErrException } from 'src/shared/error.exception';
 import * as bcrypt from 'bcrypt';
 import { JWT_CONSTANTS } from 'src/shared/constant';
+import { SignInInput } from './input.type';
 @Injectable()
 export class AuthService {
   constructor(public jwtService: JwtService, private prisma: PrismaService) { }
 
-  async signIn(username: string, password: string): Promise<any> {
+  async signIn(data: SignInInput): Promise<any> {
+    const { email, password } = data;
     const user = await this.prisma.user
       .findUnique({
-        where: { email: username },
+        where: { email },
       })
       .catch(async (e) => {
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
+    if (!user) {
+      throw new UnauthorizedException('USER_NOT_FOUND');
+    }
     const checkPassword = bcrypt.compareSync(password, user?.password)
     if (!checkPassword) throw new UnauthorizedException('PASSWORD_IS_INCORRECT');
     return this.createData(user);
@@ -33,13 +38,13 @@ export class AuthService {
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
+    if (!user) {
+      throw new UnauthorizedException('UNAUTHORIZED');
+    }
     return this.createData(user);
   }
 
   async createData(user: any) {
-    if (!user) {
-      throw new UnauthorizedException('UNAUTHORIZED');
-    }
     delete user.password;
     const payload = { sub: user.id, email: user.email };
     const access_token = await this.jwtService.signAsync(payload, { secret: JWT_CONSTANTS.secret, });

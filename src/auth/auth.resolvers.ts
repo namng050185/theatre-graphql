@@ -2,18 +2,17 @@
 import { Resolver, Mutation, Args, Context } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
 import { RefreshGuard } from './refresh.guards';
-import { UseGuards } from '@nestjs/common';
+import { Body, UseGuards } from '@nestjs/common';
+import { SignInInput } from './input.type';
+import { ValidationPipe } from 'src/shared/validation.pipe';
 
 @Resolver('Auth')
 export class AuthResolvers {
   constructor(private readonly authService: AuthService) {}
 
   @Mutation('signIn')
-  async signIn(
-    @Args('email') email: string,
-    @Args('password') password: string,
-  ): Promise<any> {
-    return this.authService.signIn(email, password);
+  async signIn(@Body(new ValidationPipe()) data: SignInInput): Promise<any> {
+    return this.authService.signIn(data);
   }
 
   @UseGuards(RefreshGuard)
