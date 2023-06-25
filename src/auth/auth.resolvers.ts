@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Resolver, Mutation, Args, Context } from '@nestjs/graphql';
+import { Resolver, Mutation, Context } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
 import { RefreshGuard } from './refresh.guards';
 import { Body, UseGuards } from '@nestjs/common';

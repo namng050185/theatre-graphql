@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { InputType, Field } from '@nestjs/graphql';
-import { IsEmail, IsNotEmpty, IsStrongPassword, MinLength, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsStrongPassword, MaxLength } from 'class-validator';
 
 @InputType()
 export class UserCreateInput {
