@@ -3,8 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { User, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ErrException, NotFoundException } from 'src/shared/error.exception';
-import { UserCreateInput } from './input.type';
-import { validate } from 'class-validator';
 
 @Injectable()
 export class UserService {

@@ -4,6 +4,8 @@ import { Portfolio, Prisma } from '@prisma/client';
 import { PortfolioService } from './portfolio.service';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guards';
+import { PortfolioCreateInput, PortfolioUpdateInput } from './portfolio.type';
+import { ValidationPipe } from 'src/shared/validation.pipe';
 
 @Resolver('Portfolio')
 export class PortfolioResolvers {
@@ -36,7 +38,7 @@ export class PortfolioResolvers {
 
   @UseGuards(AuthGuard)
   @Mutation('createPortfolio')
-  async create(@Args('data') data: Prisma.PortfolioCreateInput): Promise<Portfolio> {
+  async create(@Args('data', new ValidationPipe()) data: PortfolioCreateInput): Promise<Portfolio> {
     return this.portfolioService.createPortfolio(data);
   }
 
@@ -44,7 +46,7 @@ export class PortfolioResolvers {
   @Mutation('updatePortfolio')
   async update(
     @Args('id') id: string,
-    @Args('data') data: Prisma.PortfolioUpdateInput,
+    @Args('data', new ValidationPipe()) data: PortfolioUpdateInput,
   ): Promise<Portfolio> {
     return this.portfolioService.updatePortfolio({ where: { id: Number(id) }, data });
   }

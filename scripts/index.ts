@@ -9,10 +9,68 @@ const BLUE = '\u001b[1;34m ';
 const PURPLE = '\u001b[1;35m ';
 const CYAN = '\u001b[1;36m ';
 const RESET = '\u001b[0m';
+const TYPE = {
+  Int: 'number',
+  Float: 'number',
+  String: 'string',
+  Boolean: 'boolean',
+  Json: 'any',
+};
 //Lấy về danh sách fields
 const getFields = async (name) => {
   const dmmf = await prisma._getDmmf();
   return dmmf.modelMap[name].fields;
+};
+//hàm tạo nội dung file Type
+const generateType = async (name) => {
+  const fields = await getFields(name);
+  const createAttrInput = (isAdd) => {
+    let str = '';
+    fields.map((field) => {
+      if (!field.isId && field.kind === 'scalar') {
+        str += '\n @Field()\n';
+        if (field.name === 'password') {
+          str += ` @IsStrongPassword({}, { message: 'PASSWORD_IS_NOT_STRONG_ENOUGH'})\n`;
+          if (isAdd) {
+            str += ` @IsNotEmpty({ message: 'PASSWORD_IS_NOT_EMPTY'})\n`;
+          }
+        } else if (field.isRequired) {
+          str +=
+            ` @IsNotEmpty({ message: '` +
+            field.name.toUpperCase() +
+            `_IS_NOT_EMPTY' })\n`;
+        }
+        if (field.type === 'String') {
+          str +=
+            ` @MaxLength(200, { message: '` +
+            field.name.toUpperCase() +
+            `_IS_TOO_LONG' })\n`;
+        }
+        str +=
+          ' ' +
+          field.name +
+          (field.isRequired ? '' : '?') +
+          ': ' +
+          TYPE[field.type] +
+          '\n';
+      }
+    });
+    return str;
+  };
+  return `/* eslint-disable prettier/prettier */
+import { InputType, Field } from '@nestjs/graphql';
+import { IsEmail, IsNotEmpty, IsStrongPassword, MinLength, MaxLength } from 'class-validator';
+
+@InputType()
+export class ${name}CreateInput {
+${createAttrInput(true)}
+}
+
+@InputType()
+export class ${name}UpdateInput {
+${createAttrInput(false)}
+}
+`;
 };
 //hàm tạo nội dung file Schema
 const generateSchema = async (name) => {
@@ -27,7 +85,7 @@ const generateSchema = async (name) => {
         (field.kind === 'object' && !field.relationFromFields?.length
           ? '[' + field.type + ']'
           : (field.isId ? 'ID' : field.type == 'Json' ? 'JSON' : field.type) +
-          (field.isRequired ? '!' : '')) +
+            (field.isRequired ? '!' : '')) +
         '\n';
     });
     return str;
@@ -217,6 +275,8 @@ import { ${name}, Prisma } from '@prisma/client';
 import { ${name}Service } from './${attr}.service';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guards';
+import { ${name}CreateInput, ${name}UpdateInput } from './${attr}.type';
+import { ValidationPipe } from 'src/shared/validation.pipe';
 
 @Resolver('${name}')
 export class ${name}Resolvers {
@@ -249,7 +309,7 @@ export class ${name}Resolvers {
 
   @UseGuards(AuthGuard)
   @Mutation('create${name}')
-  async create(@Args('data') data: Prisma.${name}CreateInput): Promise<${name}> {
+  async create(@Args('data', new ValidationPipe()) data: ${name}CreateInput): Promise<${name}> {
     return this.${attr}Service.create${name}(data);
   }
 
@@ -257,7 +317,7 @@ export class ${name}Resolvers {
   @Mutation('update${name}')
   async update(
     @Args('id') id: string,
-    @Args('data') data: Prisma.${name}UpdateInput,
+    @Args('data', new ValidationPipe()) data: ${name}UpdateInput,
   ): Promise<${name}> {
     return this.${attr}Service.update${name}({ where: { id: Number(id) }, data });
   }
@@ -315,6 +375,13 @@ const generateAPI = async (key, model) => {
     folder: 'src/' + key,
     file: key + '.module.ts',
     contents: await generatemModule(name),
+  });
+  //4.Tạo File [key].type.ts
+  console.log(CYAN + 'Tạo Nội dung file : ' + key + '.type.ts' + RESET);
+  writeFile({
+    folder: 'src/' + key,
+    file: key + '.type.ts',
+    contents: await generateType(name),
   });
   console.log(RESET);
 };

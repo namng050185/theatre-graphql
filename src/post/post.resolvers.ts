@@ -4,6 +4,8 @@ import { Post, Prisma } from '@prisma/client';
 import { PostService } from './post.service';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guards';
+import { PostCreateInput, PostUpdateInput } from './post.type';
+import { ValidationPipe } from 'src/shared/validation.pipe';
 
 @Resolver('Post')
 export class PostResolvers {
@@ -36,7 +38,7 @@ export class PostResolvers {
 
   @UseGuards(AuthGuard)
   @Mutation('createPost')
-  async create(@Args('data') data: Prisma.PostCreateInput): Promise<Post> {
+  async create(@Args('data', new ValidationPipe()) data: PostCreateInput): Promise<Post> {
     return this.postService.createPost(data);
   }
 
@@ -44,7 +46,7 @@ export class PostResolvers {
   @Mutation('updatePost')
   async update(
     @Args('id') id: string,
-    @Args('data') data: Prisma.PostUpdateInput,
+    @Args('data', new ValidationPipe()) data: PostUpdateInput,
   ): Promise<Post> {
     return this.postService.updatePost({ where: { id: Number(id) }, data });
   }

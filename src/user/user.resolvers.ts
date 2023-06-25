@@ -4,12 +4,12 @@ import { User, Prisma } from '@prisma/client';
 import { UserService } from './user.service';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guards';
-import { UserCreateInput } from './input.type';
+import { UserCreateInput, UserUpdateInput } from './user.type';
 import { ValidationPipe } from 'src/shared/validation.pipe';
 
 @Resolver('User')
 export class UserResolvers {
-  constructor(private userService: UserService) { }
+  constructor(private userService: UserService ) { }
 
   @UseGuards(AuthGuard)
   @Query('users')
@@ -46,7 +46,7 @@ export class UserResolvers {
   @Mutation('updateUser')
   async update(
     @Args('id') id: string,
-    @Args('data') data: Prisma.UserUpdateInput,
+    @Args('data', new ValidationPipe()) data: UserUpdateInput,
   ): Promise<User> {
     return this.userService.updateUser({ where: { id: Number(id) }, data });
   }
