@@ -8,4 +8,4 @@ import { AuthResolvers } from './auth.resolvers';
   imports: [PrismaModule],
   exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule { }

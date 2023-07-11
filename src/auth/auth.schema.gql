@@ -8,3 +8,8 @@ type Mutation {
   signIn(email: String!, password: String): Login!
   refresh: Login!
 }
+
+
+type Subscription {
+  onNewUser: User
+}

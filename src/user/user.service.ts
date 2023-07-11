@@ -54,6 +54,9 @@ export class UserService {
   }
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
+    console.log('createUser');
+    // const datad = { id: 1, email: 'jackitom@gmail.com', password: '123456', fullname: 'Nam' }
+    // this.pubSubService.pubSub.publish('newUser', { newUser: datad });
     return this.prisma.user
       .create({
         data,

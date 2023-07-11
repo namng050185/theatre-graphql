@@ -7,7 +7,6 @@ import { AppService } from './app.service';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
-import { JWT_CONSTANTS } from './shared/constant';
 import { UserModule } from './user/user.module';
 import { PostModule } from './post/post.module';
 import { PortfolioModule } from './portfolio/portfolio.module';
@@ -24,6 +23,15 @@ import { GraphQLError, GraphQLFormattedError } from 'graphql';
       typePaths: ['./**/*.gql'],
       sortSchema: true,
       installSubscriptionHandlers: true,
+      subscriptions: {
+        'subscriptions-transport-ws': {
+          path: '/graphql',
+          onConnect: (connectionParams) => {
+            console.log(connectionParams);
+            return {};
+          },
+        },
+      },
       playground: false,
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
       formatError: (error: GraphQLError) => {
