@@ -1,12 +1,14 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { User, Prisma } from '@prisma/client';
+import { PubSub } from 'graphql-subscriptions';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ErrException, NotFoundException } from 'src/shared/error.exception';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService, @Inject('PUB_SUB')
+  private pubSub: PubSub,) { }
 
   async user(userWhereUniqueInput: Prisma.UserWhereUniqueInput): Promise<User> {
     const user = this.prisma.user
@@ -55,8 +57,8 @@ export class UserService {
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
     console.log('createUser');
-    // const datad = { id: 1, email: 'jackitom@gmail.com', password: '123456', fullname: 'Nam' }
-    // this.pubSubService.pubSub.publish('newUser', { newUser: datad });
+    const datad = { id: Math.round(Math.random() * 10000), email: 'nam@gmail.com', password: Math.random(), fullname: 'Nam mo' }
+    this.pubSub.publish('onNewUser', { onNewUser: datad });
     return this.prisma.user
       .create({
         data,

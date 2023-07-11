@@ -11,9 +11,11 @@ import { UserModule } from './user/user.module';
 import { PostModule } from './post/post.module';
 import { PortfolioModule } from './portfolio/portfolio.module';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
+import { PubSubModule } from './shared/pubSub.module';
 
 @Module({
   imports: [
+    PubSubModule,
     UserModule,
     PostModule,
     AuthModule,

@@ -2,14 +2,16 @@
 import { Resolver, Mutation, Context, Subscription } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
 import { RefreshGuard } from './refresh.guards';
-import { Body, UseGuards } from '@nestjs/common';
+import { Body, Inject, UseGuards } from '@nestjs/common';
 import { SignInInput } from './input.type';
 import { ValidationPipe } from 'src/shared/validation.pipe';
 import { PubSub } from 'graphql-subscriptions';
-const pubSub = new PubSub();
+//const pubSub = new PubSub();
 @Resolver('Auth')
 export class AuthResolvers {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService,
+    @Inject('PUB_SUB')
+    private pubSub: PubSub,) { }
 
   @Mutation('signIn')
   async signIn(@Body(new ValidationPipe()) data: SignInInput): Promise<any> {
@@ -24,13 +26,13 @@ export class AuthResolvers {
 
   @Mutation('demo')
   async demo() {
-    const data = { id: 2, email: 'nam@gmail.com', password: Math.random(), fullname: 'Nam mo' }
-    pubSub.publish('onNewUser', { onNewUser: data });
+    const data = { id: 4, email: 'nam@gmail.com', password: Math.random(), fullname: 'Nam mo' }
+    this.pubSub.publish('onNewUser', { onNewUser: data });
     return data;
   }
 
   @Subscription('onNewUser')
   onNewUser() {
-    return pubSub.asyncIterator('onNewUser');
+    return this.pubSub.asyncIterator('onNewUser');
   }
 }
