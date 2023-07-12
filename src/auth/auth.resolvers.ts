@@ -26,13 +26,13 @@ export class AuthResolvers {
 
   @Mutation('demo')
   async demo() {
-    const data = { id: 4, email: 'nam@gmail.com', password: Math.random(), fullname: 'Nam mo' }
-    this.pubSub.publish('onNewUser', { onNewUser: data });
+    const data = { action: 'created', module: 'demo', info: { title:'Nam', age: 98} }
+    this.pubSub.publish('onChange', { onChange: data });
     return data;
   }
 
-  @Subscription('onNewUser')
-  onNewUser() {
-    return this.pubSub.asyncIterator('onNewUser');
+  @Subscription('onChange')
+  onChange() {
+    return this.pubSub.asyncIterator('onChange');
   }
 }

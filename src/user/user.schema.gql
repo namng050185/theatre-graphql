@@ -10,8 +10,16 @@ type User {
 
 }
 
-input UserInput {
+input UserInputCreate {
  email: String!
+ password: String
+ fullname: String
+ meta: JSON
+
+}
+
+input UserInputUpdate {
+ email: String
  password: String
  fullname: String
  meta: JSON
@@ -48,14 +56,7 @@ type Query {
 }
 
 type Mutation {
-  createUser(data: UserInput!): User
-  updateUser(id: ID!, data: UserInput!): User
+  createUser(data: UserInputCreate!): User
+  updateUser(id: ID!, data: UserInputUpdate!): User
   deleteUser(id: ID!): User
 }
-
-
-type Mutation {
-  demo: User
-}
-
-

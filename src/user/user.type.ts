@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { InputType, Field } from '@nestjs/graphql';
-import { IsNotEmpty, IsStrongPassword, MaxLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsStrongPassword, MinLength, MaxLength } from 'class-validator';
 
 @InputType()
 export class UserCreateInput {
@@ -8,6 +8,9 @@ export class UserCreateInput {
  @Field()
  @IsNotEmpty({ message: 'EMAIL_IS_NOT_EMPTY' })
  @MaxLength(200, { message: 'EMAIL_IS_TOO_LONG' })
+ @IsEmail({}, {
+     message: 'EMAIL_IS_INCORRECT'
+ })
  email: string
 
  @Field()
@@ -31,7 +34,10 @@ export class UserUpdateInput {
  @Field()
  @IsNotEmpty({ message: 'EMAIL_IS_NOT_EMPTY' })
  @MaxLength(200, { message: 'EMAIL_IS_TOO_LONG' })
- email: string
+ @IsEmail({}, {
+     message: 'EMAIL_IS_INCORRECT'
+ })
+ email?: string
 
  @Field()
  @IsStrongPassword({}, { message: 'PASSWORD_IS_NOT_STRONG_ENOUGH'})

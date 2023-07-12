@@ -8,7 +8,7 @@ import { ErrException, NotFoundException } from 'src/shared/error.exception';
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService, @Inject('PUB_SUB')
-  private pubSub: PubSub,) { }
+  private pubSub: PubSub) { }
 
   async user(userWhereUniqueInput: Prisma.UserWhereUniqueInput): Promise<User> {
     const user = this.prisma.user
@@ -56,10 +56,7 @@ export class UserService {
   }
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
-    console.log('createUser');
-    const datad = { id: Math.round(Math.random() * 10000), email: 'nam@gmail.com', password: Math.random(), fullname: 'Nam mo' }
-    this.pubSub.publish('onNewUser', { onNewUser: datad });
-    return this.prisma.user
+    const result = await this.prisma.user
       .create({
         data,
         include: { posts: true, portfolios: true,}
@@ -68,6 +65,9 @@ export class UserService {
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
+    const onChange = { action: 'created', module: 'User', info: result }
+    this.pubSub.publish('onChange', { onChange });
+    return result;
   }
 
   async updateUser(params: {
@@ -75,7 +75,7 @@ export class UserService {
     data: Prisma.UserUpdateInput;
   }): Promise<User> {
     const { where, data } = params;
-    return this.prisma.user
+    const result = await this.prisma.user
       .update({
         data,
         where,
@@ -85,10 +85,13 @@ export class UserService {
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
+    const onChange = { action: 'updated', module: 'User', info: result }
+    this.pubSub.publish('onChange', { onChange });
+    return result;
   }
 
   async deleteUser(where: Prisma.UserWhereUniqueInput): Promise<User> {
-    return this.prisma.user
+    const result = await  this.prisma.user
       .delete({
         where,
         include: { posts: true, portfolios: true,}
@@ -97,5 +100,8 @@ export class UserService {
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
+    const onChange = { action: 'deleted', module: 'User', info: result }
+    this.pubSub.publish('onChange', { onChange });
+    return result;
   }
 }

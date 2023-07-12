@@ -1,12 +1,14 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Portfolio, Prisma } from '@prisma/client';
+import { PubSub } from 'graphql-subscriptions';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ErrException, NotFoundException } from 'src/shared/error.exception';
 
 @Injectable()
 export class PortfolioService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService, @Inject('PUB_SUB')
+  private pubSub: PubSub) { }
 
   async portfolio(portfolioWhereUniqueInput: Prisma.PortfolioWhereUniqueInput): Promise<Portfolio> {
     const portfolio = this.prisma.portfolio
@@ -54,7 +56,7 @@ export class PortfolioService {
   }
 
   async createPortfolio(data: Prisma.PortfolioCreateInput): Promise<Portfolio> {
-    return this.prisma.portfolio
+    const result = await this.prisma.portfolio
       .create({
         data,
         include: { author: true,}
@@ -63,6 +65,9 @@ export class PortfolioService {
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
+    const onChange = { action: 'created', module: 'Portfolio', info: result }
+    this.pubSub.publish('onChange', { onChange });
+    return result;
   }
 
   async updatePortfolio(params: {
@@ -70,7 +75,7 @@ export class PortfolioService {
     data: Prisma.PortfolioUpdateInput;
   }): Promise<Portfolio> {
     const { where, data } = params;
-    return this.prisma.portfolio
+    const result = await this.prisma.portfolio
       .update({
         data,
         where,
@@ -80,10 +85,13 @@ export class PortfolioService {
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
+    const onChange = { action: 'updated', module: 'Portfolio', info: result }
+    this.pubSub.publish('onChange', { onChange });
+    return result;
   }
 
   async deletePortfolio(where: Prisma.PortfolioWhereUniqueInput): Promise<Portfolio> {
-    return this.prisma.portfolio
+    const result = await  this.prisma.portfolio
       .delete({
         where,
         include: { author: true,}
@@ -92,5 +100,8 @@ export class PortfolioService {
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
+    const onChange = { action: 'deleted', module: 'Portfolio', info: result }
+    this.pubSub.publish('onChange', { onChange });
+    return result;
   }
 }

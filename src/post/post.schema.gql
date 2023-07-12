@@ -9,11 +9,19 @@ type Post {
 
 }
 
-input PostInput {
+input PostInputCreate {
  title: String!
  content: String
  published: Boolean
  authorId: Int!
+
+}
+
+input PostInputUpdate {
+ title: String
+ content: String
+ published: Boolean
+ authorId: Int
 
 }
 
@@ -49,7 +57,7 @@ type Query {
 }
 
 type Mutation {
-  createPost(data: PostInput!): Post
-  updatePost(id: ID!, data: PostInput!): Post
+  createPost(data: PostInputCreate!): Post
+  updatePost(id: ID!, data: PostInputUpdate!): Post
   deletePost(id: ID!): Post
 }

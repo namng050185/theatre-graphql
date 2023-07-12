@@ -9,8 +9,16 @@ type Portfolio {
 
 }
 
-input PortfolioInput {
+input PortfolioInputCreate {
  title: String!
+ content: String
+ published: Boolean
+ authorId: Int
+
+}
+
+input PortfolioInputUpdate {
+ title: String
  content: String
  published: Boolean
  authorId: Int
@@ -49,7 +57,7 @@ type Query {
 }
 
 type Mutation {
-  createPortfolio(data: PortfolioInput!): Portfolio
-  updatePortfolio(id: ID!, data: PortfolioInput!): Portfolio
+  createPortfolio(data: PortfolioInputCreate!): Portfolio
+  updatePortfolio(id: ID!, data: PortfolioInputUpdate!): Portfolio
   deletePortfolio(id: ID!): Portfolio
 }

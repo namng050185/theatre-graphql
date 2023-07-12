@@ -85,13 +85,13 @@ const generateSchema = async (name) => {
         (field.kind === 'object' && !field.relationFromFields?.length
           ? '[' + field.type + ']'
           : (field.isId ? 'ID' : field.type == 'Json' ? 'JSON' : field.type) +
-            (field.isRequired ? '!' : '')) +
+          (field.isRequired ? '!' : '')) +
         '\n';
     });
     return str;
   };
 
-  const createAttrInput = () => {
+  const createAttrInput = (isCreate = true) => {
     let str = '';
     fields.map((field) => {
       if (!field.isId && field.kind === 'scalar') {
@@ -100,7 +100,7 @@ const generateSchema = async (name) => {
           field.name +
           ': ' +
           (field.type == 'Json' ? 'JSON' : field.type) +
-          (field.isRequired ? '!' : '') +
+          (field.isRequired && isCreate ? '!' : '') +
           '\n';
       }
     });
@@ -120,8 +120,12 @@ type ${name} {
 ${createAttrMain()}
 }
 
-input ${name}Input {
-${createAttrInput()}
+input ${name}InputCreate {
+${createAttrInput(true)}
+}
+
+input ${name}InputUpdate {
+${createAttrInput(false)}
 }
 
 input ${name}SortInput {
@@ -148,8 +152,8 @@ type Query {
 }
 
 type Mutation {
-  create${name}(data: ${name}Input!): ${name}
-  update${name}(id: ID!, data: ${name}Input!): ${name}
+  create${name}(data: ${name}InputCreate!): ${name}
+  update${name}(id: ID!, data: ${name}InputUpdate!): ${name}
   delete${name}(id: ID!): ${name}
 }
 `;
@@ -169,14 +173,16 @@ const generateService = async (name) => {
   const includes = await getInclude();
   const attr = (name + '').toLowerCase();
   return `/* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ${name}, Prisma } from '@prisma/client';
+import { PubSub } from 'graphql-subscriptions';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ErrException, NotFoundException } from 'src/shared/error.exception';
 
 @Injectable()
 export class ${name}Service {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService, @Inject('PUB_SUB')
+  private pubSub: PubSub) { }
 
   async ${attr}(${attr}WhereUniqueInput: Prisma.${name}WhereUniqueInput): Promise<${name}> {
     const ${attr} = this.prisma.${attr}
@@ -224,7 +230,7 @@ export class ${name}Service {
   }
 
   async create${name}(data: Prisma.${name}CreateInput): Promise<${name}> {
-    return this.prisma.${attr}
+    const result = await this.prisma.${attr}
       .create({
         data,
         ${includes ? 'include: {' + includes + '}' : ''}
@@ -233,6 +239,9 @@ export class ${name}Service {
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
+    const onChange = { action: 'created', module: '${name}', info: result }
+    this.pubSub.publish('onChange', { onChange });
+    return result;
   }
 
   async update${name}(params: {
@@ -240,7 +249,7 @@ export class ${name}Service {
     data: Prisma.${name}UpdateInput;
   }): Promise<${name}> {
     const { where, data } = params;
-    return this.prisma.${attr}
+    const result = await this.prisma.${attr}
       .update({
         data,
         where,
@@ -250,10 +259,13 @@ export class ${name}Service {
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
+    const onChange = { action: 'updated', module: '${name}', info: result }
+    this.pubSub.publish('onChange', { onChange });
+    return result;
   }
 
   async delete${name}(where: Prisma.${name}WhereUniqueInput): Promise<${name}> {
-    return this.prisma.${attr}
+    const result = await  this.prisma.${attr}
       .delete({
         where,
         ${includes ? 'include: {' + includes + '}' : ''}
@@ -262,6 +274,9 @@ export class ${name}Service {
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
+    const onChange = { action: 'deleted', module: '${name}', info: result }
+    this.pubSub.publish('onChange', { onChange });
+    return result;
   }
 }
 `;

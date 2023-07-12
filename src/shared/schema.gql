@@ -3,3 +3,20 @@ enum SortType {
   desc
 }
 scalar JSON
+
+type Changes {
+  action: String
+  module: String
+  info: JSON
+}
+
+
+type Subscription {
+  onChange: Changes
+}
+
+type Mutation {
+  demo: Changes
+}
+
+

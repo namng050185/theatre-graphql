@@ -1,12 +1,14 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Post, Prisma } from '@prisma/client';
+import { PubSub } from 'graphql-subscriptions';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ErrException, NotFoundException } from 'src/shared/error.exception';
 
 @Injectable()
 export class PostService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService, @Inject('PUB_SUB')
+  private pubSub: PubSub) { }
 
   async post(postWhereUniqueInput: Prisma.PostWhereUniqueInput): Promise<Post> {
     const post = this.prisma.post
@@ -54,7 +56,7 @@ export class PostService {
   }
 
   async createPost(data: Prisma.PostCreateInput): Promise<Post> {
-    return this.prisma.post
+    const result = await this.prisma.post
       .create({
         data,
         include: { author: true,}
@@ -63,6 +65,9 @@ export class PostService {
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
+    const onChange = { action: 'created', module: 'Post', info: result }
+    this.pubSub.publish('onChange', { onChange });
+    return result;
   }
 
   async updatePost(params: {
@@ -70,7 +75,7 @@ export class PostService {
     data: Prisma.PostUpdateInput;
   }): Promise<Post> {
     const { where, data } = params;
-    return this.prisma.post
+    const result = await this.prisma.post
       .update({
         data,
         where,
@@ -80,10 +85,13 @@ export class PostService {
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
+    const onChange = { action: 'updated', module: 'Post', info: result }
+    this.pubSub.publish('onChange', { onChange });
+    return result;
   }
 
   async deletePost(where: Prisma.PostWhereUniqueInput): Promise<Post> {
-    return this.prisma.post
+    const result = await  this.prisma.post
       .delete({
         where,
         include: { author: true,}
@@ -92,5 +100,8 @@ export class PostService {
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
+    const onChange = { action: 'deleted', module: 'Post', info: result }
+    this.pubSub.publish('onChange', { onChange });
+    return result;
   }
 }
