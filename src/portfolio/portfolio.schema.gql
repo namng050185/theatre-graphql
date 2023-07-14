@@ -10,7 +10,7 @@ type Portfolio {
 }
 
 input PortfolioInputCreate {
- title: String!
+ title: String
  content: String
  published: Boolean
  authorId: Int

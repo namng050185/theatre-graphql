@@ -10,10 +10,10 @@ type Post {
 }
 
 input PostInputCreate {
- title: String!
+ title: String
  content: String
  published: Boolean
- authorId: Int!
+ authorId: Int
 
 }
 

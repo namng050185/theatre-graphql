@@ -2,7 +2,7 @@
 type User {
  id: ID!
  email: String!
- password: String
+ password: String!
  fullname: String
  meta: JSON
  posts: [Post]
@@ -11,7 +11,7 @@ type User {
 }
 
 input UserInputCreate {
- email: String!
+ email: String
  password: String
  fullname: String
  meta: JSON

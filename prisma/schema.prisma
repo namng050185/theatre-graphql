@@ -10,7 +10,7 @@ datasource db {
 model User {
   id    Int     @default(autoincrement()) @id
   email String  @unique
-  password  String?
+  password  String
   fullname  String?
   meta Json?
   posts Post[]

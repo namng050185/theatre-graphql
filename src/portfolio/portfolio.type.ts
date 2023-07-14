@@ -1,23 +1,26 @@
 /* eslint-disable prettier/prettier */
 import { InputType, Field } from '@nestjs/graphql';
-import { IsEmail, IsNotEmpty, IsStrongPassword, MinLength, MaxLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsStrongPassword, IsOptional, MaxLength } from 'class-validator';
 
 @InputType()
 export class PortfolioCreateInput {
 
  @Field()
- @IsNotEmpty({ message: 'TITLE_IS_NOT_EMPTY' })
  @MaxLength(200, { message: 'TITLE_IS_TOO_LONG' })
+ @IsNotEmpty({ message: 'TITLE_IS_NOT_EMPTY' })
  title: string
 
  @Field()
+ @IsOptional()
  @MaxLength(200, { message: 'CONTENT_IS_TOO_LONG' })
  content?: string
 
  @Field()
+ @IsOptional()
  published?: boolean
 
  @Field()
+ @IsOptional()
  authorId?: number
 
 }
@@ -26,18 +29,22 @@ export class PortfolioCreateInput {
 export class PortfolioUpdateInput {
 
  @Field()
- @IsNotEmpty({ message: 'TITLE_IS_NOT_EMPTY' })
+ @IsOptional()
  @MaxLength(200, { message: 'TITLE_IS_TOO_LONG' })
- title: string
+ @IsNotEmpty({ message: 'TITLE_IS_NOT_EMPTY' })
+ title?: string
 
  @Field()
+ @IsOptional()
  @MaxLength(200, { message: 'CONTENT_IS_TOO_LONG' })
  content?: string
 
  @Field()
+ @IsOptional()
  published?: boolean
 
  @Field()
+ @IsOptional()
  authorId?: number
 
 }

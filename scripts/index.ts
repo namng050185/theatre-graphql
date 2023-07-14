@@ -29,27 +29,28 @@ const generateType = async (name) => {
     fields.map((field) => {
       if (!field.isId && field.kind === 'scalar') {
         str += '\n @Field()\n';
-        if (field.name === 'password') {
-          str += ` @IsStrongPassword({}, { message: 'PASSWORD_IS_NOT_STRONG_ENOUGH'})\n`;
-          if (isAdd) {
-            str += ` @IsNotEmpty({ message: 'PASSWORD_IS_NOT_EMPTY'})\n`;
-          }
-        } else if (field.isRequired) {
-          str +=
-            ` @IsNotEmpty({ message: '` +
-            field.name.toUpperCase() +
-            `_IS_NOT_EMPTY' })\n`;
-        }
+        if (!isAdd || !field.isRequired) str += ' @IsOptional()\n';
         if (field.type === 'String') {
           str +=
             ` @MaxLength(200, { message: '` +
             field.name.toUpperCase() +
             `_IS_TOO_LONG' })\n`;
         }
+        if (field.name === 'password') {
+          str += ` @IsStrongPassword({}, { message: 'PASSWORD_IS_NOT_STRONG_ENOUGH'})\n`;
+        } else if (field.name === 'email') {
+          str += ` @IsEmail({}, { message: 'EMAIL_IS_INCORRECT'})\n`;
+        }
+        if (field.isRequired) {
+          str +=
+            ` @IsNotEmpty({ message: '` +
+            field.name.toUpperCase() +
+            `_IS_NOT_EMPTY' })\n`;
+        }
         str +=
           ' ' +
           field.name +
-          (field.isRequired ? '' : '?') +
+          (field.isRequired && isAdd ? '' : '?') +
           ': ' +
           TYPE[field.type] +
           '\n';
@@ -59,7 +60,7 @@ const generateType = async (name) => {
   };
   return `/* eslint-disable prettier/prettier */
 import { InputType, Field } from '@nestjs/graphql';
-import { IsEmail, IsNotEmpty, IsStrongPassword, MinLength, MaxLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsStrongPassword, IsOptional, MaxLength } from 'class-validator';
 
 @InputType()
 export class ${name}CreateInput {
@@ -100,7 +101,7 @@ const generateSchema = async (name) => {
           field.name +
           ': ' +
           (field.type == 'Json' ? 'JSON' : field.type) +
-          (field.isRequired && isCreate ? '!' : '') +
+          //(field.isRequired && isCreate ? '!' : '') +
           '\n';
       }
     });
