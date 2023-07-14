@@ -69,6 +69,8 @@ export class UserService {
     this.pubSub.publish('onChange', { onChange });
     return result;
   }
+  
+
 
   async updateUser(params: {
     where: Prisma.UserWhereUniqueInput;
@@ -85,7 +87,7 @@ export class UserService {
         await this.prisma.$disconnect();
         throw new ErrException(e);
       });
-    const onChange = { action: 'updated', module: 'User', info: result }
+    const onChange = {  action: 'updated', module: 'User', info: result }
     this.pubSub.publish('onChange', { onChange });
     return result;
   }

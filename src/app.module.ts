@@ -26,13 +26,7 @@ import { PubSubModule } from './shared/pubSub.module';
       sortSchema: true,
       installSubscriptionHandlers: true,
       subscriptions: {
-        'subscriptions-transport-ws': {
-          path: '/graphql',
-          onConnect: (connectionParams) => {
-            console.log(connectionParams);
-            return {};
-          },
-        },
+        'graphql-ws': true,
       },
       playground: false,
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
@@ -45,7 +39,7 @@ import { PubSubModule } from './shared/pubSub.module';
     }),
     JwtModule.register({
       global: true,
-      signOptions: { expiresIn: '1800s' },
+      signOptions: { expiresIn: process.env.EXPIRES_IN },
     }),
   ],
   controllers: [AppController],
