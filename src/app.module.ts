@@ -12,9 +12,13 @@ import { PostModule } from './post/post.module';
 import { PortfolioModule } from './portfolio/portfolio.module';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { PubSubModule } from './shared/pubSub.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env.' + process.env.NODE_ENV,
+    }),
     PubSubModule,
     UserModule,
     PostModule,

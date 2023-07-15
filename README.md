@@ -89,3 +89,13 @@ $ npm run test:cov
   },
 }
 ```
+
+
+## RUN DOCKER
+
+```bash
+# Prod
+$ docker-compose -f docker-compose.prod.yml up --build
+
+# Dev
+$ docker-compose -f up --build

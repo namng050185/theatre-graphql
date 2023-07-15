@@ -1,7 +1,8 @@
+
 FROM namng050185/nest-api:base
 
 COPY . .
 
 RUN npm run build
 
-CMD [ "node", "dist/src/main" ]
+EXPOSE 3000
