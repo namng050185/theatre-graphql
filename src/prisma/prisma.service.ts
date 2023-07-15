@@ -1,6 +1,6 @@
 import { INestApplication, Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+import * as bcryptjs from 'bcryptjs';
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
   async onModuleInit() {
@@ -12,8 +12,8 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       ) {
         const user = params.args.data;
         if (user.password) {
-          const salt = bcrypt.genSaltSync(10);
-          const hash = bcrypt.hashSync(user.password, salt);
+          const salt = bcryptjs.genSaltSync(10);
+          const hash = bcryptjs.hashSync(user.password, salt);
           user.password = hash;
         }
         params.args.data = user;

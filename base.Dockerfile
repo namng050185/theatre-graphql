@@ -1,3 +1,5 @@
+
+
 FROM node:14-alpine
 
 WORKDIR /workspace
@@ -5,16 +7,3 @@ WORKDIR /workspace
 COPY package.json package-lock.json /workspace/
 
 RUN npm i
-
-COPY . .
-
-
-
-RUN npm run build
-
-
-CMD ["npm", "run", "start:dev"]
-
-
-
-EXPOSE 3000

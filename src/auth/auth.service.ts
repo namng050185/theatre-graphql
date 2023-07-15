@@ -3,7 +3,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ErrException } from 'src/shared/error.exception';
-import * as bcrypt from 'bcrypt';
+import * as bcryptjs from 'bcryptjs';
 import { JWT_CONSTANTS } from 'src/shared/constant';
 import { SignInInput } from './input.type';
 @Injectable()
@@ -23,7 +23,7 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('USER_NOT_FOUND');
     }
-    const checkPassword = bcrypt.compareSync(password, user?.password)
+    const checkPassword = bcryptjs.compareSync(password, user?.password)
     if (!checkPassword) throw new UnauthorizedException('PASSWORD_IS_INCORRECT');
     return this.createData(user);
   }

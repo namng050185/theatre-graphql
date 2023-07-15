@@ -4,17 +4,30 @@ cache:
 
 stages:
 - deploy
+- develop
 - production
 
-deploy_develop:
+deploy_base:
   image: docker:latest
   stage: deploy
+  tags:
+    - mpt-dev
+  script:
+    - ./deploy-base.sh
+  only:
+    - base
+    
+deploy_develop:
+  image: docker:latest
+  stage: develop
   tags:
     - mpt-dev
   script:
     - ./deploy-dev.sh
   only:
     - develop
+    
+
 
 deploy_production:
   image: docker:latest
