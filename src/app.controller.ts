@@ -4,7 +4,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import * as fs from 'fs';
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly appService: AppService) { }
 
   @Get()
   getHello(): string {
@@ -13,13 +13,19 @@ export class AppController {
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
-    const filename = file.originalname;
-    fs.writeFile("/tmp/" + filename, file.buffer, 'binary', function (err) {
-      if (err) {
-        return console.log(err);
-      }
-    }); 
-    return { filename };
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    if (file) {
+      const filename = file?.originalname;
+      return new Promise((resolve, reject) => {
+        fs.writeFile("/tmp/" + filename, file?.buffer, 'binary', (err) => {
+          if (err) {
+            reject({ filename, status: false, message: err?.message})
+          }
+          resolve({ filename, status: true })
+        });
+      })
+    } else {
+      return { status: false, message:'FILE_NOT_FOUND' }
+    }
   }
 }
