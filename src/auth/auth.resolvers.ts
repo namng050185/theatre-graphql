@@ -24,11 +24,9 @@ export class AuthResolvers {
     return this.authService.refresh(req?.user);
   }
 
-  @Mutation('demo')
-  async demo() {
-    const data = { action: 'created', module: 'demo', info: { title:'Nam', age: 98} }
-    this.pubSub.publish('onChange', { onChange: data });
-    return data;
+  @Mutation('setup')
+  async setup() {
+    return this.authService.setup();;
   }
 
   @Subscription('onChange')

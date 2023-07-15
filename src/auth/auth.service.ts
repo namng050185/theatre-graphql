@@ -1,14 +1,18 @@
 /* eslint-disable prettier/prettier */
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ErrException } from 'src/shared/error.exception';
 import * as bcryptjs from 'bcryptjs';
 import { JWT_CONSTANTS } from 'src/shared/constant';
 import { SignInInput } from './input.type';
+import { PubSub } from 'graphql-subscriptions';
 @Injectable()
 export class AuthService {
-  constructor(public jwtService: JwtService, private prisma: PrismaService) { }
+  constructor(public jwtService: JwtService,
+    @Inject('PUB_SUB')
+    private pubSub: PubSub,
+    private prisma: PrismaService) { }
 
   async signIn(data: SignInInput): Promise<any> {
     const { email, password } = data;
@@ -45,7 +49,7 @@ export class AuthService {
   }
 
   async createData(user: any) {
-    delete user.password;
+    user.password ='PASSWORD';
     const payload = { sub: user.id, email: user.email };
     const access_token = await this.jwtService.signAsync(payload, { secret: JWT_CONSTANTS.secret, });
     const refresh_token = await this.jwtService.signAsync(payload, { secret: JWT_CONSTANTS.secretRefresh, expiresIn: '2592000s' });
@@ -56,4 +60,19 @@ export class AuthService {
     };
   }
 
+  async setup(): Promise<any> {
+    const data = {
+      email: "admin@gmail.com",
+      password: "Troidatoi1@"
+    }
+    const result = await this.prisma.user
+      .create({data})
+      .catch(async (e) => {
+        await this.prisma.$disconnect();
+        throw new ErrException(e);
+      });
+    const onChange = { action: 'created', module: 'User', info: result }
+    this.pubSub.publish('onChange', { onChange });
+    return result;
+  }
 }

@@ -16,7 +16,7 @@ type Subscription {
 }
 
 type Mutation {
-  demo: Changes
+  setup: Changes
 }
 
 
