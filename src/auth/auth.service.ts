@@ -7,9 +7,11 @@ import * as bcryptjs from 'bcryptjs';
 import { JWT_CONSTANTS } from 'src/shared/constant';
 import { SignInInput } from './input.type';
 import { PubSub } from 'graphql-subscriptions';
+import { MinioClientService } from 'src/shared/minio-client.service';
 @Injectable()
 export class AuthService {
   constructor(public jwtService: JwtService,
+    private minioService: MinioClientService,
     @Inject('PUB_SUB')
     private pubSub: PubSub,
     private prisma: PrismaService) { }
@@ -74,5 +76,11 @@ export class AuthService {
     const onChange = { action: 'created', module: 'User', info: result }
     this.pubSub.publish('onChange', { onChange });
     return result;
+  }
+
+  async demo() {
+    const all = await this.minioService.client.listBuckets();
+    console.log(all);
+    return {}
   }
 }

@@ -20,3 +20,6 @@ type Mutation {
 }
 
 
+type Query {
+  demo: Changes
+}

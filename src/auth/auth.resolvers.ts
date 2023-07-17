@@ -1,11 +1,12 @@
 /* eslint-disable prettier/prettier */
-import { Resolver, Mutation, Context, Subscription } from '@nestjs/graphql';
+import { Resolver, Mutation, Context, Subscription, Query } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
 import { RefreshGuard } from './refresh.guards';
-import { Body, Inject, UseGuards } from '@nestjs/common';
+import { Body, Inject, Injectable, UseGuards } from '@nestjs/common';
 import { SignInInput } from './input.type';
 import { ValidationPipe } from 'src/shared/validation.pipe';
 import { PubSub } from 'graphql-subscriptions';
+import { MinioService } from 'nestjs-minio-client';
 //const pubSub = new PubSub();
 @Resolver('Auth')
 export class AuthResolvers {
@@ -32,5 +33,10 @@ export class AuthResolvers {
   @Subscription('onChange')
   onChange() {
     return this.pubSub.asyncIterator('onChange');
+  }
+
+  @Query('demo')
+  async demo(): Promise<any> {
+    return this.authService.demo();
   }
 }
