@@ -17,10 +17,12 @@ export class MinioClientService {
 
     public async upload(file: any, baseBucket: string = this.baseBucket) {
         let error = '';
-        if (!(file.mimetype.includes('jpeg') || file.mimetype.includes('png'))) {
+        const types: any[] = process.env.UPLOAD_ALLOW_TYPE.split(';')
+        console.log(file.mimetype);
+        if (!types.includes(file.mimetype)) {
             error = 'ERROR_FILE_FORMAT'
         }
-        if (file.size > 101024) {
+        if (file.size > parseInt(process.env.UPLOAD_ALLOW_SIZE)) {
             error = 'ERROR_FILE_SIZE'
         }
         const temp_filename = Date.now().toString()

@@ -1,15 +1,21 @@
 import { Module } from '@nestjs/common';
 import { MinioModule } from 'nestjs-minio-client';
 import { MinioClientService } from './minio-client.service';
-
+import { ConfigModule, ConfigService } from '@nestjs/config';
 @Module({
   imports: [
-    MinioModule.register({
-      endPoint: '127.0.0.1',
-      port: 9100,
-      useSSL: false,
-      accessKey: 'mkrNRDXulL6xGNsNpOyQ',
-      secretKey: '9f17Nh3rX79A7kFtwbOcIUrGlBqSzCxN5d7hWUpL',
+    MinioModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        return {
+          endPoint: config.get('MINIO_HOST'),
+          port: parseInt(config.get('MINIO_PORT')),
+          useSSL: false,
+          accessKey: config.get('MINIO_ACCESS_KEY'),
+          secretKey: config.get('MINIO_SECRET_KEY'),
+        };
+      },
     }),
   ],
   providers: [MinioClientService],

@@ -13,11 +13,11 @@ import { PortfolioModule } from './portfolio/portfolio.module';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { PubSubModule } from './shared/pubSub.module';
 import { ConfigModule } from '@nestjs/config';
-import { MinioModule, MinioService } from 'nestjs-minio-client';
 import { MinioClientModule } from './shared/minio-client.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
+      isGlobal: true,
       envFilePath: '.env.' + process.env.NODE_ENV,
     }),
     PubSubModule,
@@ -51,4 +51,4 @@ import { MinioClientModule } from './shared/minio-client.module';
   controllers: [AppController],
   providers: [AppService, PrismaModule],
 })
-export class AppModule { }
+export class AppModule {}
